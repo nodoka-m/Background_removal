@@ -8,7 +8,7 @@ import numpy as np
 from io import BytesIO
 
 # 研究データのルート
-base_dir = r"C:\Users\bracy\Documents\Class\graduate shool\naist\U lab\study\Pointcloud_comparison\ResearchData"
+base_dir = r"/Users/nodoka-m/Desktop/research/ResearchData"
 
 # カメラ内部パラメータ取得
 def list_persons(base_dir: str):
@@ -22,8 +22,9 @@ def list_persons(base_dir: str):
 
             persons.append(d)
 
+    persons = sorted(persons)
     print("list_person:", persons)
-    return sorted(persons)
+    return persons
     # persons = ["Person001.zip", "Person002.zip", "Person003.zip", ...]
 
 def list_actions(zip_path: str, person: str):
@@ -143,12 +144,13 @@ def data_to_Pointcloud(base_dir, saved_root):
     }
 
     def is_valid_action(subject, act):
-
+   
         # 例:
         # B1_BED_IN
         # K2_FRIDGE_OPEN
 
-        camera, action = act.split("_", 1)
+        camera = act.split("_", 1)[0]
+        # camera == ["K1", "FRIDGE_OPEN"]
 
         # ===== K camera =====
         if camera.startswith("K"):
@@ -164,7 +166,7 @@ def data_to_Pointcloud(base_dir, saved_root):
     # ラベル生成
 
     label_person = list_persons(base_dir)[0]
-    person_id = os.path.splitext(label_person)[0]    # Person001 を基準に取得
+    person_id = os.path.splitext(label_person)[0]    # person_id = Person001
     label_path = os.path.join(base_dir, list_persons(base_dir)[0])
     all_actions = list_actions(label_path, person_id)
 
@@ -179,7 +181,8 @@ def data_to_Pointcloud(base_dir, saved_root):
             action_name = act.split("_", 1)[1]
 
             filtered_actions.append(action_name)
-
+            
+            print("[DBG] accepted:", act, "->", action_name)
     # 重複削除
     action_names = sorted(list(set(filtered_actions)))
 

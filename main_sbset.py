@@ -11,15 +11,20 @@ import PointNet as pn
 from collections import Counter
 
 # 研究データのルート
-base_dir = r"C:\Users\bracy\Documents\Class\graduate shool\naist\U lab\study\Pointcloud_comparison\ResearchData"
+base_dir = r"/Users/nodoka-m/Desktop/research/ResearchData"
 camera_root = os.path.join(base_dir, "PointClouds")# アウトプット用
 
 def main():
     # デバッグ用
     print("[DBG] start data_to_Pointcloud", flush=True)
 
-    # device(GPUあれば使う、なければCPU)
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
+        print("✅ Using Apple GPU (MPS)")
+    else:
+        device = torch.device("cpu")
+        print("⚠️ Using CPU")
+
     print("device:", device)
 
     files, labels, person_ids, label_map = data_to_pointcloud.data_to_Pointcloud(base_dir, camera_root)
@@ -65,7 +70,7 @@ def main():
         PointNet.train()
         running_loss = 0.0
         for step in range(steps_per_epoch):
-            xb, yb = pn.make_minibatch(X_train, y_train, batch_size, num_points, device)
+            xb, yb = pn.make_minibatch(X_train, y_train, batch_size, num_points, device=device)
 
             optimizer.zero_grad()
             out, _, _ = PointNet(xb)
@@ -83,7 +88,7 @@ def main():
             correct = 0
             total = 0
             for _ in range(eval_batches):
-                xb, yb = pn.make_minibatch(X_val, y_val, batch_size, num_points, device)
+                xb, yb = pn.make_minibatch(X_val, y_val, batch_size, num_points, device=device)
                 out, _, _ = PointNet(xb)
                 pred = out.argmax(dim=1)
                 correct += (pred == yb).sum().item()
@@ -94,7 +99,7 @@ def main():
             correct = 0
             total = 0
             for _ in range(eval_batches):
-                xb, yb = pn.make_minibatch(X_test, y_test, batch_size, num_points, device)
+                xb, yb = pn.make_minibatch(X_test, y_test, batch_size, num_points, device=device)
                 out, _, _ = PointNet(xb)
                 print("xb:", xb.shape, "yb:", yb.shape, "out:", out.shape)
                 pred = out.argmax(dim=1)

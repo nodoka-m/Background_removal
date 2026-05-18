@@ -12,11 +12,11 @@ from torch import optim
 
 
 EXPERIMENT = {
-    "epochs": 8,
-    "steps_per_epoch": 100,
+    "epochs": 50,
     "eval_batches": 20,
+    "steps_per_epoch": 33, 
     "batch_size": 16,
-    "lr": 0.001,
+    "lr": 0.0003,
     "momentum": 0.9,
     "optimizer": "adam"     # SGDより手軽に収束しやすい
 }

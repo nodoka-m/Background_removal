@@ -8,7 +8,7 @@ from TCN import pcd_to_feature
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 1つのアクションフォルダを指定（適当に1つ）
-action_path = r"C:\Users\bracy\Documents\Class\graduate shool\naist\U lab\study\Pointcloud_comparison\ResearchData\PointClouds\person01\B1_BED_IN\ex1_pcd"
+action_path = r"/Users/nodoka-m/Desktop/research/ResearchData\PointClouds\person01\B1_BED_IN\ex1_pcd"
 
 # ===== pcd一覧取得 =====
 pcd_files = sorted([

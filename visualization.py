@@ -3,7 +3,7 @@ import os
 import shutil
 
 
-base_dir = r"C:\Users\bracy\Documents\Class\graduate shool\naist\U lab\study\Pointcloud_comparison\ResearchData\PointClouds"
+base_dir = r"/Users/nodoka-m/Desktop/research"
 
 
 def save_sample_frames(pcd_dir):
@@ -62,7 +62,6 @@ subjects = sorted([
 for subject in subjects:
 
     subject_path = os.path.join(base_dir, subject)
-
     actions = sorted([
         d for d in os.listdir(subject_path)
         if os.path.isdir(os.path.join(subject_path, d))

@@ -5,7 +5,7 @@ import time
 import gc
 from bagpy import bagreader
 
-base_dir = r"C:\Users\bracy\Documents\Class\graduate shool\naist\U lab\study\Pointcloud_comparison\ResearchData"
+base_dir = r"/Users/nodoka-m/Desktop/research/ResearchData"
 output_root = os.path.join(base_dir, "PointClouds")
 os.makedirs(output_root, exist_ok=True)
 

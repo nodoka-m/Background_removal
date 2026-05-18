@@ -7,9 +7,11 @@ import cv2
 import numpy as np
 from io import BytesIO
 import Hdbscan
+import background_removal
+
 
 # 研究データのルート
-base_dir = r"C:\Users\bracy\Documents\Class\graduate shool\naist\U lab\study\Pointcloud_comparison\ResearchData"
+base_dir = r"/Users/nodoka-m/Desktop/research/ResearchData"
 
 # カメラ内部パラメータ取得
 def list_persons(base_dir: str):
@@ -23,8 +25,9 @@ def list_persons(base_dir: str):
 
             persons.append(d)
 
+    persons = sorted(persons)
     print("list_person:", persons)
-    return sorted(persons)
+    return persons
     # persons = ["Person001.zip", "Person002.zip", "Person003.zip", ...]
 
 def list_actions(zip_path: str, person: str):
@@ -101,9 +104,7 @@ def data_pointcloud_open3d(png_bytes, width, height, fx, fy, cx, cy):
 
     depth_raw = o3d.geometry.Image(depth)
 
-    # intrinsic = o3d.camera.PinholeCameraIntrinsic()
     # ピンホールカメラモデルを仮定してパラメータ情報を代入
-
     intrinsic = o3d.camera.PinholeCameraIntrinsic()
     intrinsic.set_intrinsics(width, height, fx, fy, cx, cy)
 
@@ -115,6 +116,8 @@ def data_pointcloud_open3d(png_bytes, width, height, fx, fy, cx, cy):
         depth_trunc=depth_trunc       # 10mより遠い点を除外
     )
     return pcd
+    # 保存する場合
+    # o3d.io.write_point_cloud(pcd_file, pcd)
 
 def data_to_Pointcloud(base_dir, saved_root):
     stride = 15  # 30fps → 2fps
@@ -176,7 +179,8 @@ def data_to_Pointcloud(base_dir, saved_root):
         # B1_BED_IN
         # K2_FRIDGE_OPEN
 
-        camera, action = act.split("_", 1)
+        camera = act.split("_", 1)[0]
+        # camera == ["K1", "FRIDGE_OPEN"]
 
         # ===== K camera =====
         if camera.startswith("K"):
@@ -207,7 +211,8 @@ def data_to_Pointcloud(base_dir, saved_root):
             action_name = act.split("_", 1)[1]
 
             filtered_actions.append(action_name)
-
+            
+            print("[DBG] accepted:", act, "->", action_name)    
     # 重複削除
     action_names = sorted(list(set(filtered_actions)))
 
@@ -248,6 +253,8 @@ def data_to_Pointcloud(base_dir, saved_root):
                         )
                         print("[DBG] made pcd. n=", len(pcd.points))
                         pcd = pcd.voxel_down_sample(voxel_size=0.03)
+                        # 外れ値除去→人物抽出
+                        pcd, _, _ = background_removal.background_removal(pcd)
                         pcd, _, _ = Hdbscan.extract_largest_cluster_pcd(pcd)
                         print("[DBG] hdbscan done. ")
                         if len(pcd.points) == 0:
